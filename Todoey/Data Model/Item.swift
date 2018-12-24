@@ -8,7 +8,8 @@
 
 import Foundation
 
-class Item {
+// Instead conforming to encoder & decoder, codable does both
+class Item: Codable {
     var title: String = ""
     var done: Bool = false
 }
