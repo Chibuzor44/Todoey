@@ -9,7 +9,8 @@
 import UIKit
 import RealmSwift
 
-class CategoryViewController: UITableViewController {
+
+class CategoryViewController: SwipeTableViewController {
     
     let realm = try! Realm()
     
@@ -20,6 +21,7 @@ class CategoryViewController: UITableViewController {
         super.viewDidLoad()
     
         loadCategory()
+        tableView.rowHeight = 80.0
         
     }
     
@@ -30,9 +32,15 @@ class CategoryViewController: UITableViewController {
     
     //MARK: - TableView Delegate Methods
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        cell.textLabel?.text = categories?[indexPath.row].name ?? "No Category added yet"
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        
+        if let category = categories?[indexPath.row] {
+            cell.textLabel?.text = category.name ?? "No Category added yet"
+            
+
+        }
+        
     
         return cell
     }
@@ -80,6 +88,21 @@ class CategoryViewController: UITableViewController {
     }
     
     
+    //MARK: - Delete From Swipe
+    
+    override func updateModel(at indexPath: IndexPath) {
+        if let categoryForDeletion = self.categories?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(categoryForDeletion)
+                }
+            }catch {
+                print("Error in deleting category, \(error)")
+            }
+        }
+    }
+    
+    
     //MARK: - Add button pressed
     
      @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
@@ -92,6 +115,7 @@ class CategoryViewController: UITableViewController {
             
             let newCategory = Category()
             newCategory.name = textField.text!
+
             
             self.save(category: newCategory)
             
@@ -105,6 +129,6 @@ class CategoryViewController: UITableViewController {
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
      }
-    
-    
+  
 }
+
